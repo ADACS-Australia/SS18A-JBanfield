@@ -1,0 +1,35 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block info-bar %}
+{% endblock info-bar %}
+
+{% block page_header %}
+    LATEST SURVEY NOTIFICATION
+{% endblock page_header %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <form class="row" action="" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div>
+                    A new survey is available which was created on {{ latest_survey.creation_date }}. You can choose to:
+                    <ul>
+                        <li>Continue to the one you are working with.</li>
+                        <li>Start the new one.</li>
+                    </ul>
+                </div>
+                <div class="container-fluid text-right">
+                    <div class="buttons col-md-12">
+                        <input type="hidden" name="next_action" value="{{ next_action }}"/>
+                        <input type="hidden" name="start_index" value="{{ start_index }}"/>
+                        <input class="btn btn-danger" type="submit" name="submit" tabindex="100" value="Continue"/>
+                        <input class="btn btn-danger" type="submit" name="submit" tabindex="101" value="Latest"/>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock content %}

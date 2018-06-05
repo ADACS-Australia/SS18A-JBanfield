@@ -1,0 +1,83 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block additional_styles %}
+    <link rel="stylesheet" href="{% static 'style/survey_scroll.css' %}"/>
+{% endblock additional_styles %}
+
+{% block additional_scripts %}
+    <script src="{% static 'javascript/survey.js' %}"></script>
+{% endblock additional_scripts %}
+
+{% block info-bar %}
+{% endblock info-bar %}
+
+{% block page_header %}
+    CLASSIFY
+{% endblock page_header %}
+
+{% block content %}
+    <div class="row">
+        <div id="survey-main" class="col-md-8">
+            <form class="form-row" action="" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% include 'snippets/messages.html' %}
+                {% for row in rows %}
+                    {% include 'snippets/survey_row.html' %}
+                {% endfor %}
+                <div class="container-fluid">
+                    <div class="buttons col-md-6 text-left">
+                        {% if not first_page %}
+                        <input class="btn btn-danger" type="submit" tabindex="100" name="submit"
+                               value="Back" />
+                        {% endif %}
+                    </div>
+                    <div class="buttons col-md-6 text-right">
+                        <input class="btn btn-warning" type="reset" tabindex="101" value="Reset"/>
+                        {% if submit_text == 'Finish' %}
+                            <input class="btn btn-success" type="submit" tabindex="100" name="submit"
+                               value="More!"/>
+                        {% endif %}
+                        <input class="btn btn-success" type="submit" tabindex="100" name="submit"
+                               value="{% if submit_text %}{{ submit_text }}{% else %}Submit{% endif %}"/>
+                    </div>
+                </div>
+                <input type="hidden" name="start_index" value="{{ start_index }}" />
+            </form>
+        </div>
+        <div id="survey-plots" class="flexbox-parent col-md-4">
+            <div class="panel panel-default flex-col">
+                <div class="panel-heading">Survey Plots</div>
+                <div class="panel-body flex-grow">
+                    {% for plot in plots %}
+                        {% include 'snippets/survey_plot.html' %}
+                    {% endfor %}
+                </div>
+                <div class="panel-footer">Anything about these plots</div>
+            </div>
+        </div>
+    </div>
+
+    {#    <div class="scrollable-container">#}
+    {#        <div class="left survey">#}
+    {#            <form class="form-row" action="" method="post" enctype="multipart/form-data">#}
+    {#                {% csrf_token %}#}
+    {#                {% include 'snippets/messages.html' %}#}
+    {#                {% for row in rows %}#}
+    {#                    {% include 'snippets/survey_row.html' %}#}
+    {#                {% endfor %}#}
+    {#                <div class="container-fluid text-right">#}
+    {#                    <div class="buttons col-md-12">#}
+    {#                        <input class="btn btn-warning" type="reset" tabindex="101" value="Reset"/>#}
+    {#                        <input class="btn btn-success" type="submit" tabindex="100"#}
+    {#                               value="{% if submit_text %}{{ submit_text }}{% else %}Submit{% endif %}"/>#}
+    {#                    </div>#}
+    {#                </div>#}
+    {#            </form>#}
+    {#        </div>#}
+    {#        <div class="right plots">#}
+    {#            fasdfasdf asdfasdf#}
+    {#        </div>#}
+    {#    </div>#}
+
+{% endblock content %}

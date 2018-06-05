@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package acton;
+
+/**
+ * Key/value pair.
+ */
+message KeyVal {
+    string key = 1;
+    string value = 2;
+}
+
+/**
+ * A database storing features and labels.
+ *
+ * This message should be enough to open a new connection to the database.
+ */
+message Database {
+    /**
+     * A scikit-learn LabelEncoder.
+     */
+    message LabelEncoder {
+        // Maps label -> integer.
+        message Encoding {
+            string class_label = 1;
+            int32 class_int = 2;
+        }
+        repeated Encoding encoding = 1;
+    }
+
+    // Path to database (usually a file).
+    string path = 1;
+
+    // Class of Python database wrapper.
+    string class_name = 2;
+
+    // Keyword arguments to pass to the wrapper database constructor.
+    repeated KeyVal kwarg = 3;
+
+    // Encodes labels as integers.
+    LabelEncoder label_encoder = 4;
+}
+
+/**
+ * A collection of labelled data points.
+ */
+message LabelPool {
+
+    // IDs of labelled data points.
+    repeated int64 id = 1;
+
+    // Database that labels are stored in.
+    Database db = 2;
+}
+
+/**
+ * Predicted labels of data points.
+ */
+message Predictions {
+    /**
+     * Predictions for a single instance.
+     */
+    message Prediction {
+        // The ID of the instance that we are predicting.
+        int64 id = 1;
+
+        // Predictions are a T x D array, where
+        // - T is the number of predictors, and
+        // - D is the dimensionality of the prediction.
+        repeated double prediction = 2;
+    }
+
+    // Predictions for instances.
+    repeated Prediction prediction = 1;
+
+    // IDs of instances used to train the predictor.
+    repeated int64 labelled_id = 2;
+    
+    // By having the data type and shape of the predictions outside the
+    // Prediction itself, we force all predictions to be the same shape, but
+    // also save space.
+
+    // Number of predictors.
+    int32 n_predictors = 3;
+
+    // Dimensionality of the predictions.
+    int32 n_prediction_dimensions = 4;
+
+    // Predictor used to generate these predictions.
+    string predictor = 5;
+    
+    // Database that instances are stored in.
+    Database db = 6;
+}
+
+
+/**
+ * Recommended instances to label.
+ */
+message Recommendations {
+    // IDs of recommendations.
+    repeated int64 recommended_id = 1;
+
+    // IDs of instances used to train the predictor used to recommend.
+    repeated int64 labelled_id = 2;
+
+    // Recommender used to generate these recommendations.
+    string recommender = 3;
+    
+    // Database that instances are stored in.
+    Database db = 4;
+}

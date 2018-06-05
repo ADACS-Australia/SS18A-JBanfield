@@ -1,0 +1,23 @@
+<div class="row {% if row.visited %}visited{% endif %}">
+    <div class="col-md-4">
+        {% for question in row.questions %}
+            <div class="question">{{ question }}</div>
+        {% endfor %}
+    </div>
+    <div class="col-md-8">
+        {% for div in row.divs %}
+
+            <div class="single">
+                {{ div.0 | safe }}
+                <label for="{{ div.1 }}">Selected objects</label>
+                <input id="{{ div.1 }}" name="{{ div.1 }}" class="lasso_select" value="{{ div.2 }}" readonly />
+                <input type="hidden" id="{{ div.1 }}_data_x" name="{{ div.1 }}_data_x" value="{{ div.3 }}"/>
+                <input type="hidden" id="{{ div.1 }}_data_y" name="{{ div.1 }}_data_y" value="{{ div.4 }}"/>
+            </div>
+
+        {% endfor %}
+    </div>
+    {% for script in row.scripts %}
+        {{ script | safe }}
+    {% endfor %}
+</div>

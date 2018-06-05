@@ -1,0 +1,20 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block info-bar %}
+{% endblock info-bar %}
+
+{% block page_header %}
+    CLASSIFY
+{% endblock page_header %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div>Dear <span class="name">{{ user.title }} {{ user.first_name }} {{ user.last_name }}</span></div>
+            <div>Thank You for completing the survey!!!</div>
+            <div>We have got a new survey as well. You can follow the <a href="{% url 'classify'%}">link</a> to access it.</div>
+        </div>
+    </div>
+
+{% endblock content %}

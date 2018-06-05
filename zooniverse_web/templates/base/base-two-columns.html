@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>FR-I, FR-II</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    {#    <!-- Optional theme -->#}
+    {#    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">#}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <!-- Home styles -->
+    <link rel="stylesheet" href="{% static 'style/styles.css' %}"/>
+    <!-- Home javascript -->
+    <script src="{% static 'javascript/job_form.js' %}"></script>
+    <script src="{% static 'javascript/csrf.js' %}"></script>
+    
+    <link href="https://fonts.googleapis.com/css?family=Arvo:400,700|Slabo+27px&effect=anaglyph" rel="stylesheet">
+</head>
+<body>
+    {% include 'base/header.html' %}
+    {% include 'base/navigation.html' %}
+    <div class="container">
+        <div class="row">
+            <div class="col col-md-10 main-content">
+
+                <div class="page-header">
+                    {% block page_header %}
+                        zooniverse
+                    {% endblock page_header %}
+                </div>
+                {% block content %}
+                {% endblock content %}
+            </div>
+            {% if user.is_authenticated %}
+            <div class="col col-md-2 align-self-center info-bar">
+                {% block info-bar %}
+                {% endblock info-bar %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% include 'base/footer.html' %}
+    {% block javascript %}
+    {% endblock javascript %}
+</body>
+</html>

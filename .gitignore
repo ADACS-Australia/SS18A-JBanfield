@@ -1,0 +1,8 @@
+.ipynb_checkpoints/
+*.pyc
+.idea/
+zooniverse/settings/local.py
+log
+media
+log/zooniverse.log  
+.gitignore

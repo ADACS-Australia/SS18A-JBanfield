@@ -21,13 +21,13 @@ The required steps include the following:
 1. `virtualenv venv` (create the virtual environment)
 2. `git pull` (clone the code)
 3. `source venv/bin/activate` (activate the virtual environment)
-4. `cd zooniverse/zooniverse/settings` (enter the settings directory)
+4. `cd SS18A-JBanfield/zooniverse/settings` (enter the settings directory)
 5. `touch local.py` (create the file for local settings - refer to the *Local Settings* section
 for setting up a local settings file)
 6. `cd ../../` (enter the root directory of the project)
-7. `./development-manage.py createsuperuser` (create an admin account)
-8. `./development-manage.py migrate` (migrate, for staging or production 
+7. `./development-manage.py migrate` (migrate, for staging or production 
 specify the required manage.py file instead)
+8. `./development-manage.py createsuperuser` (create an admin account)
 9. `./development-manage.py setup` (sets up the project, most directory structure for now)
 10. `./development-manage.py images` (optional - download all images for the catalog, and go get a cup of tea and a nap)
 11. `./development-manage.py runserver 8000` (running the server)

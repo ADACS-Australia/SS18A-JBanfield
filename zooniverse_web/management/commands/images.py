@@ -1,6 +1,6 @@
-import os
+import datetime
+
 from django.core.management import BaseCommand
-from shutil import copyfile
 
 from zooniverse_web.models import Galaxy, ImageStore
 from zooniverse_web.utility import constants
@@ -9,6 +9,8 @@ from zooniverse_web.utility.tgss_images import construct_tgss_url
 
 
 def populate_image_store():
+
+    start = datetime.datetime.now()
 
     galaxies = Galaxy.objects.all()
 
@@ -26,6 +28,10 @@ def populate_image_store():
                     database_type=database_type,
                     actual_url=url,
                 )
+
+    end = datetime.datetime.now()
+    time_diff = end - start
+    print('Time taken: {} seconds for {} images'.format(time_diff.total_seconds(), len(galaxies) * 2))
 
 
 def depopulate_image_store():

@@ -249,7 +249,7 @@ class ImageStore(models.Model):
 
     galaxy = models.ForeignKey(Galaxy, on_delete=models.CASCADE)
     database_type = models.CharField(max_length=10, choices=DATABASE_CHOICES, blank=False, null=False)
-    image = models.ImageField('Image', upload_to='database_images', null=True, blank=True)
+    image = models.TextField(null=True, blank=True)
     actual_url = models.TextField(null=False, blank=False)
 
     class Meta:
@@ -378,18 +378,17 @@ class QuestionResponse(models.Model):
 class QuestionDrawnResponse(models.Model):
     response = models.ForeignKey(Response, on_delete=models.CASCADE)
     survey_question = models.ForeignKey(SurveyQuestion, on_delete=models.CASCADE)
-    image = models.ForeignKey(ImageStore, on_delete=models.CASCADE)
     x_coordinates = models.TextField()
     y_coordinates = models.TextField()
 
     class Meta:
-        unique_together = ("response", "survey_question", "image")
+        unique_together = ("response", "survey_question")
 
     def __unicode__(self):
-        return u'%s - %s - %s' % (self.response.id, self.survey_question, self.image)
+        return u'%s - %s' % (self.response.id, self.survey_question)
 
     def __str__(self):
-        return u'%s - %s - %s' % (self.response.id, self.survey_question, self.image)
+        return u'%s - %s' % (self.response.id, self.survey_question)
 
 
 class Verification(models.Model):

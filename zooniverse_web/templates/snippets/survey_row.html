@@ -1,18 +1,22 @@
-<div class="row {% if row.visited %}visited{% endif %}">
+<div class="row question-set {% if row.visited %}visited{% endif %}">
     <div class="col-md-4">
         {% for question in row.questions %}
             <div class="question">{{ question }}</div>
         {% endfor %}
     </div>
     <div class="col-md-8">
+        <div class="ra_dec">{{ row.divs.0.1.ra }} {{ row.divs.0.1.dec }} (J2000)</div>
         {% for div in row.divs %}
-
             <div class="single">
                 {{ div.0 | safe }}
-                <label for="{{ div.1 }}">Selected objects</label>
-                <input id="{{ div.1 }}" name="{{ div.1 }}" class="lasso_select" value="{{ div.2 }}" readonly />
-                <input type="hidden" id="{{ div.1 }}_data_x" name="{{ div.1 }}_data_x" value="{{ div.3 }}"/>
-                <input type="hidden" id="{{ div.1 }}_data_y" name="{{ div.1 }}_data_y" value="{{ div.4 }}"/>
+                {% if div.2 %}
+                    <div id="{{ div.2 }}" class="lasso_select">Components: <span id="{{ div.2 }}_span" class="number" >{{ div.3 }}</span></div>
+                    <input type="hidden" id="{{ div.2 }}_data_x" name="{{ div.2 }}_data_x" value="{{ div.4 }}"/>
+                    <input type="hidden" id="{{ div.2 }}_data_y" name="{{ div.2 }}_data_y" value="{{ div.5 }}"/>
+                    <input id="{{ div.2 }}_zero-button"
+                           class="btn btn-danger btn-xs zero-button {% if div.3 == 'None' %}visible{% endif %}"
+                           type="button" value="Select 0"/>
+                {% endif %}
             </div>
 
         {% endfor %}

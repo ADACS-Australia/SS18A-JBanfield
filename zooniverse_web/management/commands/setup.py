@@ -19,9 +19,6 @@ class Command(BaseCommand):
         # create database_images directory
         create_path(settings.MEDIA_ROOT + 'database_images/')
 
-        # create temp_images directory
-        create_path(settings.MEDIA_ROOT + 'temp_images/')
-
         # create csv directory
         create_path(settings.MEDIA_ROOT + 'csv/')
 
@@ -29,7 +26,7 @@ class Command(BaseCommand):
         create_path(settings.MEDIA_ROOT + 'database_protobufs/')
 
         # copy no_image.png to the media database image directory
-        path_no_image = settings.MEDIA_ROOT + 'temp_images/no_image.png'
+        path_no_image = settings.MEDIA_ROOT + 'database_images/no_image.png'
         src = 'zooniverse_web/static/images/no_image.png'
 
         copyfile(src, path_no_image)

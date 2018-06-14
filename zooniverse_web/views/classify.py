@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from zooniverse_web.models import (
-    Survey, SurveyQuestion, Response
+    Survey, SurveyQuestion, Response, QuestionResponse
 )
 from zooniverse_web.utility import constants
 from zooniverse_web.utility.plots import get_plots
@@ -16,19 +16,49 @@ from zooniverse_web.utility.survey import (
 
 @login_required
 def classify(request):
-
+    """
+    Handles the request to process inputs and render classify page
+    :param request: request
+    :return: rendered template
+    """
     # fixing the object index for pagination
     if request.method != 'POST':
         start_index = 0
 
+        active_response = Response.objects.filter(
+            user=request.user,
+            status=Response.ACTIVE,
+        ).first()
+
+        if active_response:
+            start_index = QuestionResponse.objects.filter(response=active_response).count()
+
+        latest_survey = Survey.objects.filter(active=True).order_by('-creation_date').first()
+
+        if active_response and latest_survey != active_response.survey:  # unfinished old survey found
+            # show the intermediate page
+            request.session['survey_id'] = active_response.survey.id
+            next_action = 'Outdated'
+            return render(
+                request,
+                'classify/intermediate.html',
+                {
+                    'next_action': next_action,
+                    'latest_survey': latest_survey,
+                    # once posted from intermediate page the start index would be updated automatically, so it is
+                    # required to get it reduced
+                    'start_index': start_index - constants.SURVEY_QUESTIONS_PER_PAGE,
+                }
+            )
+
         try:
             # setting the survey to the latest
-            # need to work if retrieves old classification jobs (paused jobs)
-            request.session['survey_id'] = Survey.objects.filter(active=True).order_by('-creation_date').first().id
-            survey = Survey.objects.get(id=request.session['survey_id'])
+            request.session['survey_id'] = latest_survey.id
+            survey = latest_survey
         except AttributeError:
             # Create prediction w/ Acton and create new survey
             survey = generate_new_survey()
+            request.session['survey_id'] = survey.id
 
         try:
             response = Response.objects.get(
@@ -50,7 +80,9 @@ def classify(request):
 
         if not next_action:  # have come from original_page
             from_page = 'original'
-            next_action = request.POST.get('submit', None)
+            next_action = request.POST.get('action_type', None)
+            if not next_action:  # no action_type present, means back
+                next_action = 'Back'
         else:
             from_page = 'intermediate'
 
@@ -91,13 +123,13 @@ def classify(request):
                             'start_index': start_index,
                         }
                     )
-            else:
-                # mark the current survey as finished
-                response.status = Response.FINISHED
-                response.save()
+            else:  # it has come from intermediate page
 
-                # redirect to the classify page
+                # redirect to the classify page if latest is required
                 if request.POST.get('submit', None) == 'Latest':
+                    # mark the current survey as finished
+                    response.status = Response.FINISHED
+                    response.save()
                     return redirect(reverse('classify'))
 
             # update the start index
@@ -117,7 +149,7 @@ def classify(request):
     total = SurveyQuestion.objects.filter(survey=survey).count()
 
     if start_index + constants.SURVEY_QUESTIONS_PER_PAGE >= total:
-        submit_text = 'Finish'
+        submit_text = 'More!'
 
     plots = get_plots(request)
 

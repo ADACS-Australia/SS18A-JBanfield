@@ -20,6 +20,22 @@ logger = logging.getLogger(__name__)
 
 
 def construct_tgss_url(ra, dec):
+    """Construct a query url for an image at position ra and dec.
+
+    Note that we query for hSIZE=0.05 degree, which is equivalent to 3 arcmin.
+
+    Parameters
+    ----------
+    ra:
+        Right ascension (HMS format)
+    dec:
+        Declination (HMS format)
+
+    Returns
+    -------
+    url:
+        Remote query url
+    """
     c = SkyCoord(ra=ra, dec=dec, frame='icrs', unit=(u.hourangle, u.degree))
     url = 'http://vo.astron.nl/tgssadr/q_fits/cutout/form?__nevow_form__=genForm' \
           '&hPOS={}%2C{}' \
@@ -35,6 +51,18 @@ def construct_tgss_url(ra, dec):
 
 
 def download_tgss_image(url):
+    """Download an image for TGSS.
+
+    Parameters
+    ----------
+    url:
+        url of the image.
+
+    Returns
+    -------
+    file_url:
+        Url of the newly downloaded file.
+    """
 
     # parsing ra and dec from the url
     query = urlparse(url).query
@@ -64,8 +92,8 @@ def download_tgss_image(url):
 
     fits_image = temp_folder + '/' + members[0].name
     hdu_list = fits.open(fits_image)
-    stretch = vis.MinMaxInterval() + vis.AsinhStretch(0.01)
-    file_url = settings.MEDIA_ROOT + 'temp_images/' + temp_folder + '_tgss.png'
+    stretch = vis.AsinhStretch(0.01) + vis.MinMaxInterval()
+    file_url = settings.MEDIA_ROOT + 'database_images/' + temp_folder + '_tgss.png'
 
     image_data = hdu_list[0].data[0, 0]
 
@@ -74,34 +102,9 @@ def download_tgss_image(url):
     except OSError:
         logger.info("Something is wrong with the fits file for url = {}".format(url))
         logger.error(OSError)
-        file_url = settings.MEDIA_ROOT + 'temp_images/no_image.png'
+        file_url = settings.MEDIA_ROOT + 'database_images/no_image.png'
 
     hdu_list.close()
     shutil.rmtree(temp_folder)
 
     return file_url
-
-# Code below could be use if the VO service for TGSS works at some point... Currently, it always seem to return an
-# empty table
-#
-# http://vo.astron.nl/tgssadr/q_fits/cutout/info
-# import pyvo as vo
-# from astropy.coordinates import SkyCoord
-# import astropy.units as u
-# import subprocess
-#
-# def get_tgss_image(galaxy, url='http://vo.astron.nl/tgssadr/q_fits/imgs/siap.xml'):
-#     query = vo.sia.SIAQuery(url)
-#     query.format = 'image/fits'
-#     # Choose the cutout size (degrees, where 0.05 degree == 3 arcmin)
-#     query.size = 0.05
-#     query.pos = SkyCoord("{} {}".format(galaxy.ra, galaxy.dec), frame='icrs', unit=(u.hourangle, u.deg))
-#
-#     results = query.execute()
-#
-#     return results
-#
-#     for image in results:
-#         print (image)
-#         # print ("Downloading %s..." % name)
-#         image.cachedataset(filename="%s_tgss.fits" % galaxy.first)

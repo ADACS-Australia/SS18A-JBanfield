@@ -17,13 +17,13 @@ services:
     command: >
       bash -c "pip3 install GPy
       && cp -r extern/acton /usr/local/lib/python3.6/site-packages/
+      && python3 development-manage.py migrate
+      && python3 development-manage.py setup
       && python3 development-manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./:/code
       - ./zooniverse_web/static/:/static/
-      - ./zooniverse_web/static/:/code/static/
       - ./media/:/media/
-      - ./media/:/code/media/
     ports:
       - "8000:8000"
     depends_on:

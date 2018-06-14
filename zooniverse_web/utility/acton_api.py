@@ -1,8 +1,7 @@
-# from extern.acton import acton
 from acton import acton
 import acton.proto
 import acton.database
-from acton.acton import predict, recommend, label
+from acton.acton import label
 from acton.proto.wrappers import Recommendations
 
 from django.conf import settings
@@ -10,6 +9,7 @@ from pandas import read_csv, DataFrame, concat
 from zooniverse_web.models import (
     Galaxy, Response, QuestionResponse, QuestionOption
 )
+from zooniverse_web.utility import constants
 from zooniverse_web.utility.utils import check_path
 from django.db.models import Q
 
@@ -173,18 +173,12 @@ def initialise_labels_for_two_predictors(
     return labels_fr_i, labels_fr_ii
 
 
-def get_user_labels_for_two_predictors(previous_survey):
+def get_user_labels_for_two_predictors():
     """Generate a new predictor from user labels from preview_survey
-
-    Parameters
-    ----------
-    previous_survey: zooniverse_web.models.Survey
-        Previous survey used to label galaxies
     """
     question_responses = QuestionResponse.objects.filter(
         response=Response.objects.get(
             status=Response.FINISHED,
-            survey=previous_survey
         )
     )
 
@@ -230,13 +224,14 @@ def get_user_labels_for_two_predictors(previous_survey):
 def get_recommendations_from_file(
         filename: str,
         recommender: str = 'RandomRecommender',
-        n_recommendations: int = 10):
+        n_recommendations: int = constants.NUMBER_OF_ACTON_RECOMMENDATION):
     """Get recommendation based on a prediction protobuf file
 
     Parameters
     -----------
     filename : str
         filename of protobuf file (.pb) with path
+    recommender: type of recommender
     n_recommendations : int
         Number of recommendations to be generated
     """
@@ -254,12 +249,14 @@ def get_recommendations_from_file(
 def get_recommendations(
         predictions: acton.proto.wrappers.Predictions,
         recommender: str = 'RandomRecommender',
-        n_recommendations: int = 10):
+        n_recommendations: int = constants.NUMBER_OF_ACTON_RECOMMENDATION):
     """Get recommendation based on a prediction protobuf
 
     Parameters
     ----------
     predictions : acton.proto.wrappers.Predictions
+
+    recommender: type of recommender
 
     n_recommendations : int
 

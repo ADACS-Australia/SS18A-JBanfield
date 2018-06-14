@@ -1,7 +1,7 @@
 from django.conf.urls import url, include
 from django.contrib.auth import views as auth_views
 
-from zooniverse_web.views import account, static, verify, job, classify, administration
+from zooniverse_web.views import account, static, verify, classify, administration
 
 urlpatterns = [
     url(r'^$', static.index, name='index'),
@@ -13,7 +13,6 @@ urlpatterns = [
     url(r'^about/$', static.about, name='about'),
     url(r'^administration/$', administration.administration, name='administration'),
     url(r'^classify/$', classify.classify, name='classify'),
-    url(r'^start/$', job.start, name='start'),
 
     url(r'^accounts/login/$',
         auth_views.LoginView.as_view(redirect_authenticated_user=True,

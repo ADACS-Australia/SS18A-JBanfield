@@ -37,14 +37,52 @@ class ClassifyObject:
         self.visited = visited
 
 
-def get_bokeh_images(url, field_name, pre_filled=None):
+def get_bokeh_image(url):
+    """Image to be rendered with bokeh and it is not selectable using lasso tool
+
+    Parameters
+    ----------
+    url: url of the image
+    """
+    tools = [
+        BoxZoomTool(),
+        WheelZoomTool(),
+        PanTool(),
+        ResetTool(),
+    ]
+
+    # constructing bokeh figure
+    plot = figure(
+        x_range=(0, 1),
+        y_range=(0, 1),
+        width=display_image_size,
+        height=display_image_size,
+        logo=None,
+        tools=tools,
+    )
+
+    # adding image to the figure
+    plot.image_url(
+        url=[url], x=0, y=0, w=1, h=1, anchor="bottom_left",
+    )
+
+    plot.axis.visible = False
+    plot.background_fill_color = "#000000"
+    plot.background_fill_alpha = 0.8
+    plot.grid.grid_line_color = None
+
+    script, div = components(plot)
+    return script, div
+
+
+def get_bokeh_image_selectable(url, field_name, pre_filled=None):
     """Get images to be rendered with bokeh
 
     Parameters
     ----------
-    url:
-    field_name:
-    pre_filled:
+    url: url of the image
+    field_name: javscript field name where the number of drawn objects would be shown
+    pre_filled: coordinates of any previously selected objects
     """
     if not pre_filled:
         x = []
@@ -81,9 +119,13 @@ def get_bokeh_images(url, field_name, pre_filled=None):
             }
         }
         
-        document.getElementById('field_name').value = count;
+        document.getElementById('field_name_span').innerHTML = count;
         document.getElementById('field_name_data_x').value = data['x'].join(',');
         document.getElementById('field_name_data_y').value = data['y'].join(',');
+        
+        if (count > 0) {
+            document.getElementById('field_name_zero-button').classList.remove('visible');
+        }
         
         // emit update of data source
         source.change.emit();
@@ -97,22 +139,19 @@ def get_bokeh_images(url, field_name, pre_filled=None):
         var clicked_position = cb_obj;
         
         // clearing the lasso select areas on double click/tap on the figure
+        var to_change = false;
         if (clicked_position.x >= 0 && clicked_position.x <= 1 && clicked_position.y >= 0 && clicked_position.y <= 1) {
             data['x'] = [];
             data['y'] = [];
+            to_change = true;
         }
-        
-        // count number of selections
-        var count = 0
-        for (i=0; i < data['x'].length; i++) {
-            if (isNaN(data['x'][i])) {
-                count++;
-            }
+             
+        if (to_change) {
+            document.getElementById('field_name_span').innerHTML = 'None';
+            document.getElementById('field_name_data_x').value = '';
+            document.getElementById('field_name_data_y').value = '';
+            document.getElementById('field_name_zero-button').classList.add('visible');
         }
-        
-        document.getElementById('field_name').value = count;
-        document.getElementById('field_name_data_x').value = '';
-        document.getElementById('field_name_data_y').value = '';
         
         // emit update of data source
         source.change.emit();
@@ -126,7 +165,7 @@ def get_bokeh_images(url, field_name, pre_filled=None):
         fill_color='#009933',
         line_width=1,
         line_alpha=1.0,
-        line_color='#FF0000',
+        line_color='#044A7E',
     )
 
     tools = [
@@ -237,14 +276,13 @@ def generate_recommendations_for_survey(survey):
     store_survey_elements(survey, recom, df_fri, df_frii)
 
 
-def generate_new_survey(previous_survey=None):
-    """Generate a new survey
-
-    Parameters
-    -----------
-    previous_survey: zooniverse_web.models.Survey
-         Latest survey that a user is acting on, if any.
+def generate_new_survey():
     """
+    Generate a new survey
+    """
+
+    previous_survey = Survey.objects.filter(active=True).order_by('-creation_date').first()
+
     # Create a survey
     survey = Survey()
     survey.save()
@@ -257,7 +295,7 @@ def generate_new_survey(previous_survey=None):
                                    predictor='LogisticRegression',
                                    output_file='predictions_survey_%d.pb' % survey.id)
     else:
-        labels_fr_i, labels_fr_ii = get_user_labels_for_two_predictors(previous_survey)
+        labels_fr_i, labels_fr_ii = get_user_labels_for_two_predictors()
         pred = predict_and_combine(labels_1=labels_fr_i,
                                    labels_2=labels_fr_ii,
                                    predictor='LogisticRegression',
@@ -342,7 +380,6 @@ def get_next_survey_objects(survey_id, start_index=0, response=None):
                 question_drawn_response = QuestionDrawnResponse.objects.get(
                     response=response,
                     survey_question=survey_question,
-                    image=image_store,
                 )
                 x_coordinates = question_drawn_response.x_coordinates
                 y_coordinates = question_drawn_response.y_coordinates
@@ -358,24 +395,41 @@ def get_next_survey_objects(survey_id, start_index=0, response=None):
                     x=[],
                     y=[],
                 )
-                number_of_objects = 0
+                number_of_objects = 'None'
 
-            field_name = constants.FORM_QUESTION_PREFIX + survey_question.id.__str__() \
-                         + '_' + image_store.database_type.__str__()
-            script, div = get_bokeh_images(
-                url=image_store.image.url,
-                field_name=field_name,
-                pre_filled=pre_filled,
-            )
-            divs.append(
-                [
-                    div,
-                    field_name,
-                    number_of_objects,
-                    x_coordinates,
-                    y_coordinates,
-                ]
-            )
+            if image_store.database_type == ImageStore.FIRST and 'no_image' not in image_store.image:
+                field_name = constants.FORM_QUESTION_PREFIX + survey_question.id.__str__() \
+                    + '_' + image_store.database_type.__str__()
+
+                script, div = get_bokeh_image_selectable(
+                    url='/' + image_store.image,
+                    field_name=field_name,
+                    pre_filled=pre_filled,
+                )
+
+                divs.append(
+                    [
+                        div,
+                        galaxy,
+                        field_name,
+                        number_of_objects,
+                        x_coordinates,
+                        y_coordinates,
+                    ]
+                )
+
+            else:
+                script, div = get_bokeh_image(
+                    url='/' + image_store.image
+                )
+
+                divs.append(
+                    [
+                        div,
+                        galaxy,
+                    ]
+                )
+
             scripts.append(script)
 
         survey_objects.append(ClassifyObject(
@@ -419,6 +473,9 @@ def save_answers(request, response):
             split_content = key.replace(constants.FORM_QUESTION_PREFIX, '').split('_')
             survey_question_id = split_content[0]
             image_database_type = split_content[1]
+            if image_database_type != ImageStore.FIRST:  # skip saving coordinates for other images
+                continue
+
             coordinate = split_content[-1]
 
             survey_question = SurveyQuestion.objects.get(id=survey_question_id)
@@ -427,10 +484,6 @@ def save_answers(request, response):
                 QuestionDrawnResponse.objects.update_or_create(
                     survey_question=survey_question,
                     response=response,
-                    image=ImageStore.objects.get(
-                        galaxy=survey_question.survey_element.galaxy,
-                        database_type=image_database_type,
-                    ),
                     defaults={
                         'x_coordinates': request.POST[key],
                     }
@@ -439,10 +492,6 @@ def save_answers(request, response):
                 QuestionDrawnResponse.objects.update_or_create(
                     survey_question=survey_question,
                     response=response,
-                    image=ImageStore.objects.get(
-                        galaxy=survey_question.survey_element.galaxy,
-                        database_type=image_database_type,
-                    ),
                     defaults={
                         'y_coordinates': request.POST[key],
                     }

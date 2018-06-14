@@ -99,7 +99,7 @@ def download_tgss_images(ra=337.95469167, dec=-8.40781389):
     shutil.rmtree(temp_folder)
 
 
-@user_passes_test(lambda u: u.is_staff)
+@user_passes_test(lambda usr: usr.is_staff)
 def administration(request):
     from zooniverse_web.models import Survey, QuestionResponse, Response, QuestionOption
     from zooniverse_web.utility.survey import generate_new_survey
@@ -109,11 +109,14 @@ def administration(request):
 
     if request.method == 'POST':
         next_action = request.POST.get('submit', None)
-        if next_action == 'New survey':
+
+        if next_action == '(Re)Train Recommender':
             previous_survey = Survey.objects.filter(active=True).order_by('-creation_date').first()
 
             if not previous_survey:
-                generate_new_survey()
+                survey_created = generate_new_survey()
+                message_class = 'success'
+                message = 'New survey created on {}!'.format(survey_created.creation_date)
             else:
                 # Are there any responses for this survey?
                 try:
@@ -126,7 +129,7 @@ def administration(request):
                             answer=option.option
                         )
 
-                    survey_created = generate_new_survey(previous_survey)
+                    survey_created = generate_new_survey()
                     message_class = 'success'
                     message = 'New survey created on {}!'.format(survey_created.creation_date)
 

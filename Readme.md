@@ -96,6 +96,12 @@ The following settings needs to be present in the `local.py` settings file.
         }
     }
     ```
+    
+8. Set the login redirect url (optional). Set the page you want the user to see after login. If not set, it redirects to
+`/accounts/profile/`
+    ```python
+    LOGIN_REDIRECT_URL = '/'
+    ```
 
 (Optional) Force the https protocol even if the request is not secure
 in links. Specially helpful in case server is hosted on a different 

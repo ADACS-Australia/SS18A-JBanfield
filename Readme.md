@@ -12,6 +12,7 @@ Prerequisites
 =============
 - Python 3
 - MySQL 5.7+ (tested with 5.7)
+- Redis - for installation refer to Redis quick start page (https://redis.io/topics/quickstart)
 
 *Optional*
 - Docker and Docker-Compose
@@ -35,6 +36,8 @@ specify the required manage.py file instead)
 10. `./development-manage.py setup` (sets up the project, most directory structure for now)
 11. `./development-manage.py images` (optional - download all images for the catalog. For ~9000 images, expect about two hours on a high speed connection.)
 12. `./development-manage.py runserver 8000` (running the server)
+13. Run the Redis server by using appropriate command depending on the host
+14. `celery -A zooniverse worker -l info` in a separate window (start the celery worker)
 
 ## Local Settings ##
 The project is required to have customised machine specific settings.
@@ -105,6 +108,11 @@ The following settings needs to be present in the `local.py` settings file.
     ```python
     LOGIN_REDIRECT_URL = '/'
     ```
+9. Set configurations of the redis server (if you are running it in a different path)
+    ```python
+    CELERY_BROKER_URL = 'redis://localhost:6379'
+    CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+    ```
 
 (Optional) Force the https protocol even if the request is not secure
 in links. Specially helpful in case server is hosted on a different 
@@ -117,7 +125,13 @@ Docker
 ======
 In case you choose to run this code as Docker containers, this section provides basic information about how to proceed. 
 
-Here are a few steps [assuming you have set your local.py file (see previous section)]:
+Before we begin, the following assumes that you have set your local.py file (see previous section). In addition, you will need to modify the two lines related to celery by replacing `localhost` with `redis`, as follows:
+```python
+CELERY_BROKER_URL = 'redis://redis:6379'
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
+```
+
+Here are a few steps:
 
 1. Install docker and docker-compose, which can downloaded from: https://docs.docker.com/compose/install/#install-compose
 2. Once docker is launched, open a terminal and navigate to the project's repository.
@@ -142,21 +156,13 @@ Here are a few steps [assuming you have set your local.py file (see previous sec
 
     This will open a new shell where you see the virtual webserver. Here, we can simply type the usual commands that are on the project wiki. So: `python development-manage.py createsuperuser`. This will prompt you to add a username, email and password. 
 
-    As a sanity check, check that everything is correctly set by typing the following (it should have been executed with `docker-compose up -d --build`): 
-    
-    `pip3 install GPy`
-    
-    `cp -r extern/acton /usr/local/lib/python3.6/site-packages/`
-
-    `python3 development-manage.py migrate`
-
-    `python3 development-manage.py setup`
-
 6. To quit the virtual server, simply type `exit`. The server will still be running.
 
-Open a browser, and go to `http://0.0.0.0:8000`.
+When running docker in detached mode (using `-d`), allow for a few seconds (this will depend on your computer hardware) for the server to start.
 
-If nothing shows up, try  `docker-compose restart`. 
+Open a browser, and go to `http://0.0.0.0:8000`. 
+
+If nothing shows up after a minute or two, try `docker-compose restart`. 
 
 To stop all of these processes, type `docker-compose stop`. You can restart it with `docker-compose up -d` (`-d` stands for “detached”, and can be omitted if you wanna see the server’s output).
 

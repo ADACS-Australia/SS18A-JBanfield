@@ -17,3 +17,22 @@ VERIFY_EMAIL_ADDRESS['message'] = '<p>Dear {{title}} {{first_name}} {{last_name}
                                   '<p>&nbsp;</p>' \
                                   '<p>Regards,</p>' \
                                   '<p>zooniverse Team</p>'
+
+SURVEY_CREATED = dict()
+SURVEY_CREATED['subject'] = '[zooniverse] New Survey Created'
+SURVEY_CREATED['message'] = '<p>Dear {{title}} {{first_name}} {{last_name}}</p>' \
+                            '<p>A new survey has been created as per your request on {{creation_date}}.</p>' \
+                            '<p>Now the users will be able to access it for classification.</p>' \
+                            '<p>&nbsp;</p>' \
+                            '<p>Regards,</p>' \
+                            '<p>zooniverse Team</p>'
+
+SURVEY_CREATION_FAILED = dict()
+SURVEY_CREATION_FAILED['subject'] = '[zooniverse] New Survey Creation Failed'
+SURVEY_CREATION_FAILED['message'] = '<p>Dear {{title}} {{first_name}} {{last_name}}</p>' \
+                                    '<p>You have requested for a new survey on {{creation_date}}.</p>' \
+                                    '<p>Unfortunately the survey creation could not be done due to the following:</p>' \
+                                    '<p>{{failure_reason}}</p>' \
+                                    '<p>&nbsp;</p>' \
+                                    '<p>Regards,</p>' \
+                                    '<p>zooniverse Team</p>'

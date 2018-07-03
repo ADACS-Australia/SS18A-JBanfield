@@ -2,24 +2,23 @@
 Distributed under the MIT License. See LICENSE.txt for more info.
 """
 
+import astropy.units as u
+import astropy.visualization as vis
+import matplotlib
 import os
+import requests
 import shutil
-
-from django.shortcuts import render
-from django.conf import settings
-
+import tarfile
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
-import astropy.visualization as vis
-from matplotlib.image import imsave
-import requests
-import tarfile
-import astropy.units as u
+from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render
+from matplotlib.image import imsave
 
-from zooniverse_web.models import Galaxy
-
-import matplotlib
+from zooniverse_celery.tasks import generate_survey_and_email
+from zooniverse_celery.utility import survey_generation_in_progress
+from zooniverse_web.models import Galaxy, Survey, QuestionResponse, Response, QuestionOption
 
 # this must be used like the following, as there are some crashing issues in second request to the page
 # setting up the matplotlib backend as 'Agg'
@@ -137,11 +136,9 @@ def administration(request):
     render:
         django.shortcuts.render (a page to be rendered)
     """
-    from zooniverse_web.models import Survey, QuestionResponse, Response, QuestionOption
-    from zooniverse_web.utility.survey import generate_new_survey
 
-    message = None
-    message_class = None
+    message = ''
+    message_class = ''
 
     if request.method == 'POST':
         next_action = request.POST.get('submit', None)
@@ -149,13 +146,9 @@ def administration(request):
         if next_action == '(Re)Train Recommender':
             previous_survey = Survey.objects.filter(active=True).order_by('-creation_date').first()
 
-            if not previous_survey:
-                survey_created = generate_new_survey()
-                message_class = 'success'
-                message = 'New survey created on {}!'.format(survey_created.creation_date)
-            else:
+            try:
                 # Are there any responses for this survey?
-                try:
+                if previous_survey:
                     for option in QuestionOption.objects.all():
                         QuestionResponse.objects.filter(
                             response=Response.objects.get(
@@ -164,23 +157,25 @@ def administration(request):
                             ),
                             answer=option.option
                         )
+            except (QuestionOption.DoesNotExist, QuestionResponse.DoesNotExist, Response.DoesNotExist):
+                message = 'You do not have enough question responses saved yet for the current survey! ' \
+                          'Try again later.'
+                message_class = 'warning'
+            else:
 
-                    survey_created = generate_new_survey()
+                if not survey_generation_in_progress():
+                    generate_survey_and_email.delay(
+                        email=request.user.email,
+                        title=request.user.title,
+                        first_name=request.user.first_name,
+                        last_name=request.user.last_name,
+                        username=request.user.username,
+                    )
                     message_class = 'success'
-                    message = 'New survey created on {}!'.format(survey_created.creation_date.date())
-
-                except (QuestionOption.DoesNotExist, QuestionResponse.DoesNotExist, Response.DoesNotExist):
-                    message = 'You do not have enough question responses saved yet for the current survey! ' \
-                              'Try again later.'
-                    message_class = 'warning'
-                except:
-                    message = 'Something went wrong while generating the survey. Please try again. <br />' \
-                              'If the problem keeps on occuring, please contact your system administrator.'
-                    message_class = 'danger'
-
-    else:
-        message = ''
-        message_class = ''
+                    message = 'A new survey creation request has been made! You will be notified via email once done.'
+                else:
+                    message_class = 'info'
+                    message = 'A new survey creation is already underway! You need to wait until it is finished.'
 
     return render(
         request,

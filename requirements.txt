@@ -28,6 +28,10 @@ django-toolbelt
 Pillow==4.3.0
 matplotlib==2.2.2
 
+# MULTI-THREADING
+celery==4.2
+redis
+
 #For dev only:
 django-extensions==1.9.7
 ipython==5.6.0

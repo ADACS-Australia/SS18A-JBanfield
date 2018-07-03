@@ -1,10 +1,10 @@
+from acton import acton
+import acton.proto
+import acton.database
 """
 Distributed under the MIT License. See LICENSE.txt for more info.
 """
 
-from acton import acton
-import acton.proto
-import acton.database
 from acton.acton import label
 from acton.proto.wrappers import Recommendations
 

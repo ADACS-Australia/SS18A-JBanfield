@@ -17,6 +17,9 @@ from zooniverse_web.utility.survey import (
     get_next_survey_objects, save_answers, generate_recommendations_for_survey
 )
 
+from zooniverse_celery.tasks import add_more_survey_objects
+from zooniverse_celery.utility import add_more_objects_to_survey_in_progress
+
 
 @login_required
 def classify(request):
@@ -31,7 +34,9 @@ def classify(request):
     render:
         django.shortcuts.render (rendered template)
     """
-    # fixing the object index for pagination
+
+    next_action = None
+
     if request.method != 'POST':
         start_index = 0
 
@@ -156,12 +161,6 @@ def classify(request):
         if next_action == 'More!':
             generate_recommendations_for_survey(survey)
 
-    survey_objects = get_next_survey_objects(
-        survey_id=request.session['survey_id'],
-        start_index=start_index,
-        response=response,
-    )
-
     # setting the text for the forward button
     submit_text = 'Save and Next'
     total = SurveyQuestion.objects.filter(survey=survey).count()
@@ -171,7 +170,19 @@ def classify(request):
 
     plots = get_plots(request)
 
-    progress = int((start_index/total) * 100)
+    progress = int((start_index / total) * 100)
+
+    # this will automatically fires more action recommendation as user approaches to the end of a survey
+    if next_action != 'Back' and start_index >= total - \
+            int(constants.NUMBER_OF_ACTON_RECOMMENDATION * constants.TRIGGER_MORE_QUESTION_WHEN_REMAINING_PERCENTAGE) \
+            and not add_more_objects_to_survey_in_progress(survey):
+        add_more_survey_objects.delay(survey_id=survey.id, username=request.user.username)
+
+    survey_objects = get_next_survey_objects(
+        survey_id=request.session['survey_id'],
+        start_index=start_index,
+        response=response,
+    )
 
     return render(
         request,

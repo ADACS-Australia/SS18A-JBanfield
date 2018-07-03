@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 from __future__ import unicode_literals
 
 from django.contrib.auth.decorators import login_required
@@ -10,16 +14,22 @@ from zooniverse_web.models import (
 from zooniverse_web.utility import constants
 from zooniverse_web.utility.plots import get_plots
 from zooniverse_web.utility.survey import (
-    get_next_survey_objects, save_answers, generate_new_survey, generate_recommendations_for_survey
+    get_next_survey_objects, save_answers, generate_recommendations_for_survey
 )
 
 
 @login_required
 def classify(request):
-    """
-    Handles the request to process inputs and render classify page
-    :param request: request
-    :return: rendered template
+    """Handles the request to process inputs and render classify page
+
+    Parameters
+    request:
+        django.shortcuts.request (a page to be rendered)
+
+    Returns
+    -------
+    render:
+        django.shortcuts.render (rendered template)
     """
     # fixing the object index for pagination
     if request.method != 'POST':
@@ -56,9 +66,15 @@ def classify(request):
             request.session['survey_id'] = latest_survey.id
             survey = latest_survey
         except AttributeError:
-            # Create prediction w/ Acton and create new survey
-            survey = generate_new_survey()
-            request.session['survey_id'] = survey.id
+            # No survey exists yet. We'll let an admin deal with it!
+            # We just inform the user that there is no current survey to work on.
+            return render(
+                request,
+                'classify/no-survey-yet.html',
+                {
+                    'user': request.user,
+                }
+            )
 
         try:
             response = Response.objects.get(
@@ -108,7 +124,9 @@ def classify(request):
                         'classify/completed.html',
                         {
                             'user': request.user,
-                            'latest_survey': latest_survey,
+                            'latest_survey': latest_survey
+                            if request.session['survey_id'] != latest_survey.id else None,
+                            'current_survey': Survey.objects.get(id=request.session['survey_id']),
                         }
                     )
 
@@ -153,6 +171,8 @@ def classify(request):
 
     plots = get_plots(request)
 
+    progress = int((start_index/total) * 100)
+
     return render(
         request,
         'classify/classify.html',
@@ -162,5 +182,9 @@ def classify(request):
             'start_index': start_index,
             'submit_text': submit_text,
             'first_page': True if start_index == 0 else False,
+            'labelled': start_index,
+            'total': total - start_index,
+            'progress': progress,
+            'remaining': 100 - progress,
         }
     )

@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 from __future__ import unicode_literals
 
 import warnings
@@ -37,7 +41,20 @@ from django.utils.translation import ugettext_lazy as _
 
 UserModel = get_user_model()
 
+
 def registration(request):
+    """Register a user.
+
+    Parameters
+    ----------
+    request:
+        POST request
+
+    Returns
+    -------
+    render:
+        django.shortcuts.render (page to be rendered)
+    """
     data = {}
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -47,11 +64,11 @@ def registration(request):
 
             # generating verification link
             verification_link = get_absolute_site_url(request) + \
-                '/verify?verification_code=' + \
-                get_token(
-                    information='type=user&username={}'.format(data.get('username')),
-                    validity=constants.EMAIL_VERIFY_EXPIRY,
-                )
+                                '/verify?verification_code=' + \
+                                get_token(
+                                    information='type=user&username={}'.format(data.get('username')),
+                                    validity=constants.EMAIL_VERIFY_EXPIRY,
+                                )
 
             # Sending email to the potential user to verify the email address
             email_verify_request(
@@ -86,6 +103,18 @@ def registration(request):
 
 @login_required
 def profile(request):
+    """Profile view
+
+    Parameters
+    ----------
+    request:
+        GET or POST request
+
+    Returns
+    -------
+    render:
+         django.shortcuts.render (a page to be rendered)
+    """
     data = {}
     if request.method == 'POST':
         form = EditProfileForm(request.POST, instance=request.user)
@@ -117,8 +146,22 @@ def profile(request):
         },
     )
 
+
 @login_required
 def change_password(request):
+    """Change a user password.
+
+    Parameters
+    ----------
+    request:
+        GET or POST request
+
+    Returns
+    -------
+    render
+        django.shortcuts.render (a page to be rendered)
+    """
+
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
@@ -126,9 +169,9 @@ def change_password(request):
             update_session_auth_hash(request, user)
             messages.success(request, 'Your password has been successfully updated', 'alert alert-success')
             return redirect('change_password')
-        # else:
-        #     # messages.error(request, 'Please correct the error below.')
-        #     messages.error(request, 'Please correct the error below.', 'alert alert-warning')
+            # else:
+            #     # messages.error(request, 'Please correct the error below.')
+            #     messages.error(request, 'Please correct the error below.', 'alert alert-warning')
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'accounts/change_password.html', {
@@ -142,9 +185,9 @@ def change_password(request):
 #
 # ************************************************************************************
 def deprecate_current_app(func):
+    """Handle deprecation of the current_app parameter of the views.
     """
-    Handle deprecation of the current_app parameter of the views.
-    """
+
     @functools.wraps(func)
     def inner(*args, **kwargs):
         if 'current_app' in kwargs:
@@ -159,7 +202,9 @@ def deprecate_current_app(func):
             if request and current_app is not None:
                 request.current_app = current_app
         return func(*args, **kwargs)
+
     return inner
+
 
 # Doesn't need csrf_protect since no-one can guess the URL
 @sensitive_post_parameters()

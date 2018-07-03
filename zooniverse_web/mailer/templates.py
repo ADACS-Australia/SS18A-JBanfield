@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 VERIFY_EMAIL_ADDRESS = dict()
 VERIFY_EMAIL_ADDRESS['subject'] = '[zooniverse] Please verify your email address'
 VERIFY_EMAIL_ADDRESS['message'] = '<p>Dear {{title}} {{first_name}} {{last_name}}</p>' \

@@ -1,32 +1,20 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
-from io import BytesIO
-
-from django.core.files.base import ContentFile
-from future.standard_library import install_aliases
 
 import logging
 import uuid
 import django.contrib.auth.models as auth_models
 
-from PIL import Image
 from django.db import models
 from django_countries.fields import CountryField
 
 from zooniverse_web.utility import constants
-from zooniverse_web.utility.first_images import download_first_image
-from zooniverse_web.utility.tgss_images import download_tgss_image
-
-install_aliases()
-from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
-
-# TODO: replace FileField with ContentTypeRestrictedFileField to manage file size restriction.
-# from zooniverse_web.utility.format_checker import ContentTypeRestrictedFileField
-
-MINIMUM_POSITIVE_NON_ZERO_FLOAT = 1e-90
 
 
 class User(auth_models.AbstractUser):
@@ -364,6 +352,7 @@ class QuestionResponse(models.Model):
     response = models.ForeignKey(Response, on_delete=models.CASCADE)
     survey_question = models.ForeignKey(SurveyQuestion, on_delete=models.CASCADE)
     answer = models.TextField()
+    comments = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = ("response", "survey_question")

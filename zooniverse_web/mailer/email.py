@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template import Template

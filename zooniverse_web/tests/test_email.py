@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 from __future__ import unicode_literals
 
 from django.test import TestCase

@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 import os
 import shutil
 
@@ -25,6 +29,18 @@ import matplotlib.pyplot as plt
 
 
 def generate_sky_projection(request):
+    """Generate a sky projection plot using matplotlib.
+
+    Parameters
+    ----------
+    request:
+        POST request
+
+    Returns
+    -------
+    image_path:
+         Full path to local image
+    """
     # should not run every time, should check pickle file
     galaxies = Galaxy.objects.all()
 
@@ -52,6 +68,15 @@ def generate_sky_projection(request):
 
 
 def download_tgss_images(ra=337.95469167, dec=-8.40781389):
+    """Download TGSS images
+
+    Parameters
+    ----------
+    ra:
+        Right ascension
+    dec:
+        Declination
+    """
     url = 'http://vo.astron.nl/tgssadr/q_fits/cutout/form?__nevow_form__=genForm' \
           '&hPOS={}%2C{}' \
           '&hSIZE=0.5' \
@@ -101,6 +126,17 @@ def download_tgss_images(ra=337.95469167, dec=-8.40781389):
 
 @user_passes_test(lambda usr: usr.is_staff)
 def administration(request):
+    """Administration actions ((re)train acton predictor for a new survey)
+
+    Parameters
+    ----------
+    request:
+        POST request
+    Returns
+    -------
+    render:
+        django.shortcuts.render (a page to be rendered)
+    """
     from zooniverse_web.models import Survey, QuestionResponse, Response, QuestionOption
     from zooniverse_web.utility.survey import generate_new_survey
 
@@ -131,12 +167,16 @@ def administration(request):
 
                     survey_created = generate_new_survey()
                     message_class = 'success'
-                    message = 'New survey created on {}!'.format(survey_created.creation_date)
+                    message = 'New survey created on {}!'.format(survey_created.creation_date.date())
 
-                except (QuestionResponse.DoesNotExist, Response.DoesNotExist):
+                except (QuestionOption.DoesNotExist, QuestionResponse.DoesNotExist, Response.DoesNotExist):
                     message = 'You do not have enough question responses saved yet for the current survey! ' \
                               'Try again later.'
                     message_class = 'warning'
+                except:
+                    message = 'Something went wrong while generating the survey. Please try again. <br />' \
+                              'If the problem keeps on occuring, please contact your system administrator.'
+                    message_class = 'danger'
 
     else:
         message = ''

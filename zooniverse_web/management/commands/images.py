@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 import datetime
 
 from django.core.management import BaseCommand
@@ -9,6 +13,10 @@ from zooniverse_web.utility.tgss_images import construct_tgss_url
 
 
 def populate_image_store():
+    """Populate image store with all objects in catalog.
+
+    Images from FIRST and TGSS are downloaded, when available, for all objects in the database.
+    """
 
     start = datetime.datetime.now()
 
@@ -35,14 +43,25 @@ def populate_image_store():
 
 
 def depopulate_image_store():
+    """Remove all galaxy images from database.
+    """
     ImageStore.objects.all().delete()
 
 
 class Command(BaseCommand):
+    """Class command superclassing BaseCommand
+    """
 
     help = 'Populating ImageStore and downloading all images'
 
     def add_arguments(self, parser):
+        """Add arguments
+
+        Parameters
+        ----------
+        parser:
+            parser object
+        """
         parser.add_argument(
             '--task',
             dest='task',
@@ -52,6 +71,19 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """Handle a command
+
+        Parameters
+        ----------
+        args:
+            Arguments
+        options:
+            Options
+
+        Returns
+        -------
+            error message if applicable.
+        """
 
         # checking for options
         if options['task'] == 'download':

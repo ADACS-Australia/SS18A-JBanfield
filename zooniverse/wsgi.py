@@ -1,4 +1,6 @@
 """
+Distributed under the MIT License. See LICENSE.txt for more info.
+
 WSGI config for zooniverse project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.

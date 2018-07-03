@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 import base64
 import logging
 
@@ -39,16 +43,45 @@ def check_path(path):
 
 
 def url_quote(raw):
+    """Encode the url to base64
+
+    Parameters
+    ----------
+    raw:
+        raw url
+
+    Returns
+    -------
+    url:
+        encoded url
+    """
     utf8 = quote_plus(raw).encode('utf8')
     return base64.b16encode(utf8).decode('utf8')
 
 
 def url_unquote(enc):
+    """Decode the url from base64
+
+    Parameters
+    ----------
+    enc:
+        encoded url
+
+    Returns
+    -------
+    url:
+        decoded url
+    """
     unquoted = unquote_plus(base64.b16decode(enc).decode('utf8'))
     return unquoted
 
 
 def get_absolute_site_url(request):
+    """
+
+    :param request:
+    :return:
+    """
     site_name = request.get_host()
     if request.is_secure():
         protocol = 'https'

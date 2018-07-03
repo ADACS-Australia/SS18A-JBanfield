@@ -19,7 +19,7 @@
 {% block content %}
     <div class="row">
         <div id="survey-main" class="col-md-8">
-            <form class="form-row" action="" method="post" enctype="multipart/form-data">
+            <form class="form-row" action="" method="post" enctype="multipart/form-data" onsubmit="$('#info').show(true);">
                 {% csrf_token %}
                 {{ div | safe }}
                 {{ script | safe }}
@@ -29,12 +29,16 @@
                             {{ message }}
                         </div>
                     {% endif %}
+                    <div class="alert alert-info" id="info" hidden>
+                        A new survey has been requested and will be generated if possible. It may take a few minutes.<br />
+                        Do not refresh the page. We will inform you when the task has completed.
+                    </div>
                     <div class="buttons col-md-6 text-left">
                         Press this button to retrain acton for a new survey.
                     </div>
                     <div class="buttons col-md-6 text-right">
                         <input class="btn btn-success" type="submit" tabindex="100" name="submit"
-                               value="(Re)Train Recommender"/>
+                               value="(Re)Train Recommender" />
                     </div>
                 </div>
             </form>

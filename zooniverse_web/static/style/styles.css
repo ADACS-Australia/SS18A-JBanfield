@@ -521,6 +521,10 @@ Welcome page
     font-weight: 700;
 }
 
+.question {
+    margin-bottom: 30px;
+}
+
 /* for radio */
 .question ul {
     list-style: none;
@@ -540,6 +544,19 @@ Welcome page
 
 .single label {
     padding-left: 10px;
+}
+.single .glyphicon-holder {
+    color: #a9a9a9;
+    margin: 0 0 -5px 0;
+}
+
+.glyphicon-holder-plots {
+    color: #a9a9a9;
+    margin: 0 72px -5px 0;
+}
+
+.single .glyphicon-holder .glyphicon {
+    padding: 0 30px 0 0;
 }
 
 .ra_dec {
@@ -569,4 +586,8 @@ Welcome page
 
 .zero-button.visible {
     display: inline-block;
+}
+
+.progress-container {
+    padding-left: 0;
 }

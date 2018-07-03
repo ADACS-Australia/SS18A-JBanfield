@@ -2,7 +2,7 @@ $(window).on('load', function () {
   /*
   fixes the height of the scrollable plots if the form height is less
    */
-  $('.panel-body').css('max-height', $('#survey-main').height() - 80)
+  $('.panel-body').css('max-height', $('#survey-main').height())
 })
 
 function reset_inputs() {

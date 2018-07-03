@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 from django.conf.urls import url, include
 from django.contrib.auth import views as auth_views
 

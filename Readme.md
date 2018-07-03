@@ -1,9 +1,12 @@
 **Project Overview**
 ====================
 
-The aim of the project is to facilitate user interface for the radio galaxy zooniverse (Banfield+)
-where the users will be able to provide labels for images of galaxies to be fed to an active learning 
-recommandation package. This project is currently made using the django framework.
+The aim of this project is to facilitate an enhanced web interface for radio galaxy zoo (Banfield+) allowing users to label galaxy data suggested by an active learning backend ([Acton](https://github.com/chengsoonong/acton)). This project currently builds upon the django framework.
+
+User documentation
+==================
+
+User documentation can be found on the wiki (https://github.com/ASVO-TAO/ADACS-SS18A-JBanfield/wiki). 
 
 Prerequisites
 =============
@@ -109,3 +112,64 @@ machine and apache redirect is sent there.
 ```python
 HTTP_PROTOCOL = 'https'
 ```
+
+Docker
+======
+In case you choose to run this code as Docker containers, this section provides basic information about how to proceed. 
+
+Here are a few steps [assuming you have set your local.py file (see previous section)]:
+
+1. Install docker and docker-compose, which can downloaded from: https://docs.docker.com/compose/install/#install-compose
+2. Once docker is launched, open a terminal and navigate to the project's repository.
+
+    At the root of the project's repository are included the files `Dockerfile` and `docker-compose.yml`. For all the following steps have to be executed from that repository (or otherwise add the path to the files).
+
+3. From there, type: 
+    
+    `docker-compose up -d --build`
+
+    This will download Python, MySQL, and install most python packages. Once installed, the container will be launched. It should also run most of the `python development-manage.py <command>` commands for you. 
+
+4. Now that this has finished, type: 
+    
+    `docker ps` 
+    
+    This will display the different docker processes currently running (e.g. `dg_zooniverse` and `mysql_zooniverse`). 
+    
+5. As we want to create a superuser with `development-manage.py`, connect to dg_zooniverse with: 
+
+    `docker exec -ti dg_zooniverse bash`. 
+
+    This will open a new shell where you see the virtual webserver. Here, we can simply type the usual commands that are on the project wiki. So: `python development-manage.py createsuperuser`. This will prompt you to add a username, email and password. 
+
+    As a sanity check, check that everything is correctly set by typing the following (it should have been executed with `docker-compose up -d --build`): 
+    
+    `pip3 install GPy`
+    
+    `cp -r extern/acton /usr/local/lib/python3.6/site-packages/`
+
+    `python3 development-manage.py migrate`
+
+    `python3 development-manage.py setup`
+
+6. To quit the virtual server, simply type `exit`. The server will still be running.
+
+Open a browser, and go to `http://0.0.0.0:8000`.
+
+If nothing shows up, try  `docker-compose restart`. 
+
+To stop all of these processes, type `docker-compose stop`. You can restart it with `docker-compose up -d` (`-d` stands for “detached”, and can be omitted if you wanna see the server’s output).
+
+Note that the database information present in the `docker-compose.yml` file should match the database information in `local.py`.
+
+License
+=======
+
+The project is licensed under the MIT License. For more information, please refer to the [LICENSE](https://github.com/ASVO-TAO/ADACS-SS18A-JBanfield/blob/dev/LICENSE) document.
+
+
+Authors
+=======
+
+* [Shibli Saleheen](https://github.com/shiblisaleheen) (as part of [ADACS](https://adacs.org.au/))
+* [Dany Vohl](https://github.com/macrocosme) (as part of [ADACS](https://adacs.org.au/))

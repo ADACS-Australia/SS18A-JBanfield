@@ -8,14 +8,15 @@ services:
       MYSQL_ROOT_PASSWORD: example
       MYSQL_DATABASE: zooniverse_dev
       MYSQL_USER: zooniverse_web
-      MYSQL_PASSWORD: test-docker_#1
+      MYSQL_PASSWORD: test-password#1
     ports:
        - "40001:3306"
   web:
     container_name: dg_zooniverse
     build: ./
     command: >
-      bash -c "pip3 install GPy
+      bash -c "mkdir -p log
+      && pip3 install GPy
       && cp -r extern/acton /usr/local/lib/python3.6/site-packages/
       && python3 development-manage.py migrate
       && python3 development-manage.py setup

@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 from acton import acton
 import acton.proto
 import acton.database
@@ -191,6 +195,9 @@ def get_user_labels_for_two_predictors():
     else:
         df_all = read_csv(CSV_COMBINED_LATEST)
 
+    df_fri = read_csv(CSV_FRI)
+    df_frii = read_csv(CSV_FRII)
+
     for response in question_responses:
         label = QuestionOption.objects.get(option=response.answer).option_label
 
@@ -203,16 +210,22 @@ def get_user_labels_for_two_predictors():
 
         if label == 'I':
             ids_fri.append(new_id)
+            df_fri = df_fri.append(new_item)
         if label == 'II':
             ids_frii.append(new_id)
+            df_frii = df_frii.append(new_item)
         if label == 'B':
             ids_fri.append(new_id)
             ids_frii.append(new_id)
+            df_frii = df_frii.append(new_item)
+            df_fri = df_fri.append(new_item)
 
         response.response.status = Response.PROCESSED
         response.response.save()
 
     df_all.to_csv(CSV_COMBINED_LATEST, index=False)  # index=False as we already have `idx`
+    df_fri.to_csv(CSV_FRI, index=False)  # index=False as we already have `idx`
+    df_frii.to_csv(CSV_FRII, index=False)  # index=False as we already have `idx`
 
     with acton.database.ASCIIReader(CSV_COMBINED_LATEST, feature_cols=FEATURE_COLS, label_col='my_label') as db:
         labels_fr_i = acton.proto.wrappers.LabelPool.make(ids=set(ids_fri), db=db)

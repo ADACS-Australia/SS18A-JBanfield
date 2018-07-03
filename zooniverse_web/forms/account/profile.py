@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 from django import forms
 from zooniverse_web.models import User
 from django.contrib.auth import password_validation

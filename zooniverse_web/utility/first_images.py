@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 from astropy.utils.data import download_file
 from astropy.io import fits
 from matplotlib.image import imsave

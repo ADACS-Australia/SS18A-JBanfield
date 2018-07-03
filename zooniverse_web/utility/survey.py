@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 import re
 from bokeh import events
 
@@ -168,12 +172,18 @@ def get_bokeh_image_selectable(url, field_name, pre_filled=None):
         line_color='#044A7E',
     )
 
+    lasso_select = LassoSelectTool(callback=callback, select_every_mousemove=False)
+    box_zoom = BoxZoomTool()
+    pan = PanTool()
+    wheel_zoom = WheelZoomTool()
+    reset = ResetTool()
+
     tools = [
-        BoxZoomTool(),
-        LassoSelectTool(callback=callback, select_every_mousemove=False),
-        WheelZoomTool(),
-        PanTool(),
-        ResetTool(),
+        box_zoom,
+        lasso_select,
+        wheel_zoom,
+        pan,
+        reset,
     ]
 
     # constructing bokeh figure
@@ -184,6 +194,7 @@ def get_bokeh_image_selectable(url, field_name, pre_filled=None):
         height=display_image_size,
         logo=None,
         tools=tools,
+        active_drag=lasso_select,
     )
 
     # adding image to the figure
@@ -348,6 +359,7 @@ def get_next_survey_objects(survey_id, start_index=0, response=None):
 
         choices = []
         default_choice = None
+        comments_initial = None
         for option in options:
             choices.append((option.option, option.option))
             if option.is_default_option:
@@ -355,20 +367,32 @@ def get_next_survey_objects(survey_id, start_index=0, response=None):
 
         # overriding the default with provided answers if any
         try:
-            default_choice = QuestionResponse.objects.get(
+            question_response = QuestionResponse.objects.get(
                 response=response,
                 survey_question=survey_question,
-            ).answer
+            )
+            default_choice = question_response.answer
+            comments_initial = question_response.comments
             visited = True
         except QuestionResponse.DoesNotExist:
             pass
 
+        # radio question
         q = Sq(
             name=constants.FORM_QUESTION_PREFIX + survey_question.id.__str__(),
             label=survey_question.survey_element.question.text,
             choices=tuple(choices),
             initial=default_choice,
             question_type=survey_question.survey_element.question.category,
+        )
+
+        # text question
+        q_text = Sq(
+            name=constants.FORM_QUESTION_PREFIX + survey_question.id.__str__() + '_comments',
+            label='',
+            question_type='text',
+            placeholder='Enter extra comments here',
+            initial=comments_initial,
         )
 
         # getting images for this survey question
@@ -399,7 +423,7 @@ def get_next_survey_objects(survey_id, start_index=0, response=None):
 
             if image_store.database_type == ImageStore.FIRST and 'no_image' not in image_store.image:
                 field_name = constants.FORM_QUESTION_PREFIX + survey_question.id.__str__() \
-                    + '_' + image_store.database_type.__str__()
+                             + '_' + image_store.database_type.__str__()
 
                 script, div = get_bokeh_image_selectable(
                     url='/' + image_store.image,
@@ -433,7 +457,7 @@ def get_next_survey_objects(survey_id, start_index=0, response=None):
             scripts.append(script)
 
         survey_objects.append(ClassifyObject(
-            questions=[q],
+            questions=[q, q_text, ],
             divs=divs,
             scripts=scripts,
             visited=visited,
@@ -448,15 +472,19 @@ def save_answers(request, response):
     Parameters
     ----------
     request:
+        POST request
     response:
+        response object of the database model
     """
     # pattern for questions
-    pattern_1 = constants.FORM_QUESTION_PREFIX + '\d+$'
+    pattern_question = constants.FORM_QUESTION_PREFIX + '\d+$'
+    # pattern for comments
+    pattern_comments = constants.FORM_QUESTION_PREFIX + '\d+_comments$'
     # pattern for image selected areas
-    pattern_2 = constants.FORM_QUESTION_PREFIX + '\d+_[a-zA-Z0-9_]+$'
+    pattern_selected_area = constants.FORM_QUESTION_PREFIX + '\d+_[a-zA-Z0-9_]+$'
 
     for key in request.POST:
-        if re.match(pattern_1, key):
+        if re.match(pattern_question, key):
             answer = request.POST[key]
             survey_question = SurveyQuestion.objects.get(id=key.replace(constants.FORM_QUESTION_PREFIX, ''))
 
@@ -467,7 +495,19 @@ def save_answers(request, response):
                     'answer': answer,
                 }
             )
-        elif re.match(pattern_2, key):
+        elif re.match(pattern_comments, key):  # this must be checked before the selected area, or will match there
+            comments = request.POST[key]
+            survey_question = SurveyQuestion.objects.get(
+                id=key.replace(constants.FORM_QUESTION_PREFIX, '').split('_')[0])
+
+            qr, created = QuestionResponse.objects.get_or_create(
+                survey_question=survey_question,
+                response=response,
+            )
+            qr.comments = comments
+            qr.save()
+
+        elif re.match(pattern_selected_area, key):
             # save answers for selected areas
             # finding id of the survey question
             split_content = key.replace(constants.FORM_QUESTION_PREFIX, '').split('_')

@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 import astropy.units as u
 import pickle
 import os
@@ -304,7 +308,7 @@ class NComponentsSnrPlot(Plot):
             Post request
         """
         self.request = request
-        super(NComponentsSnrPlot, self).__init__(label='')
+        super(NComponentsSnrPlot, self).__init__(label='NComponentsSnr')
 
     def _set_plot(self):
         """Set the plot.
@@ -351,7 +355,7 @@ class FluxSnrPlot(Plot):
             POST request
         """
         self.request = request
-        super(FluxSnrPlot, self).__init__(label='')
+        super(FluxSnrPlot, self).__init__(label='FluxSnr')
         # self._set_plot()
 
     def _set_plot(self):
@@ -405,7 +409,7 @@ class SkyProjectionPlot(Plot):
             POST request.
         """
         self.request = request
-        super(SkyProjectionPlot, self).__init__(label='')
+        super(SkyProjectionPlot, self).__init__(label='SkyProjection')
 
     def _set_plot(self):
         """Set the plot.

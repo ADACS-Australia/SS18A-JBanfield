@@ -1,3 +1,7 @@
+"""
+Distributed under the MIT License. See LICENSE.txt for more info.
+"""
+
 from django.shortcuts import render
 from six.moves.urllib import parse
 
@@ -6,6 +10,18 @@ from zooniverse_web.utility import utils
 
 
 def verify(request):
+    """Verify an account.
+
+    Parameters
+    ----------
+    request:
+        POST request
+
+    Returns
+    -------
+    render:
+        django.shortcuts.render (a page to be rendered)
+    """
     data = {}
     code_encrypted = request.GET.get('verification_code', None)
     if code_encrypted:

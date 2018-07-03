@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{% static 'style/survey_scroll.css' %}"/>
     <link rel="stylesheet" href="{% static 'style/radio-button.css' %}"/>
     <link rel="stylesheet" href="{% static 'style/submit_error.css' %}"/>
+    <link rel="stylesheet" href="{% static 'style/help_modal.css' %}"/>
 {% endblock additional_styles %}
 
 {% block additional_scripts %}
@@ -21,12 +22,19 @@
 {% block content %}
     <div class="row">
         <div id="survey-main" class="col-md-8">
+            {% include 'snippets/progress_bar.html' %}
             <div class="row form-header">
-                <div class="alert alert-danger text-center error"> You need to answer all the questions to proceed. <br/> You also need to determine the number of components on FIRST images. </div>
+                <div class="alert alert-danger text-center error"> You need to answer all the questions to proceed.
+                    <br/> You also need to determine the number of components on FIRST images.
+                </div>
                 <div class="col-md-4">&nbsp;</div>
                 <div class="col-md-8">
-                    <div class="single"><div class="text">FIRST (3 arcmin²)</div></div>
-                    <div class="single"><div class="text">TGSS (3 arcmin²)</div></div>
+                    <div class="single">
+                        <div class="text">FIRST (3 arcmin²)</div>
+                    </div>
+                    <div class="single">
+                        <div class="text">TGSS (3 arcmin²)</div>
+                    </div>
                 </div>
             </div>
             <form id="survey-form" class="form-row" action="" method="post" enctype="multipart/form-data">
@@ -36,11 +44,13 @@
                     {% include 'snippets/survey_row.html' %}
                 {% endfor %}
                 <div class="container-fluid">
-                    <div class="alert alert-danger text-center error"> You need to answer all the questions to proceed. <br/> You also need to determine the number of components on FIRST images. </div>
+                    <div class="alert alert-danger text-center error"> You need to answer all the questions to proceed.
+                        <br/> You also need to determine the number of components on FIRST images.
+                    </div>
                     <div class="buttons col-md-6 text-left">
                         {% if not first_page %}
-                        <input class="btn btn-danger" id="back-button" type="button" tabindex="100" name="back"
-                               value="Back" />
+                            <input class="btn btn-danger" id="back-button" type="button" tabindex="100" name="back"
+                                   value="Back"/>
                         {% endif %}
                     </div>
                     <div class="buttons col-md-6 text-right">
@@ -50,7 +60,7 @@
                                value="{% if submit_text %}{{ submit_text }}{% else %}Submit{% endif %}"/>
                     </div>
                 </div>
-                <input type="hidden" name="start_index" value="{{ start_index }}" />
+                <input type="hidden" name="start_index" value="{{ start_index }}"/>
             </form>
         </div>
         <div id="survey-plots" class="flexbox-parent col-md-4">
@@ -61,7 +71,6 @@
                         {% include 'snippets/survey_plot.html' %}
                     {% endfor %}
                 </div>
-                <div class="panel-footer">&nbsp;</div>
             </div>
         </div>
     </div>

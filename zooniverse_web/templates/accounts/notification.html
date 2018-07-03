@@ -1,11 +1,10 @@
-{% extends 'base/base-two-columns.html' %}
+{% extends 'base/base.html' %}
 
 {% block info-bar %}
     Verification
 {% endblock info-bar %}
 
 {% block page_header %}
-    zooniverse-Cloud -
     {% if type == 'registration_submitted' %}Registration submitted {% endif %}
     {% if type == 'email_verify' %}Email address verification {% endif %}
 {% endblock page_header %}

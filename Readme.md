@@ -6,7 +6,7 @@ The aim of this project is to facilitate an enhanced web interface for radio gal
 User documentation
 ==================
 
-User documentation can be found on the wiki (https://github.com/ASVO-TAO/ADACS-SS18A-JBanfield/wiki). 
+User documentation can be found on the wiki (https://github.com/ADACS-Australia/SS18A-JBanfield/wiki). 
 
 Prerequisites
 =============

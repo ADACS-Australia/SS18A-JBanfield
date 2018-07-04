@@ -3,7 +3,7 @@
 
 The aim of this project is to facilitate an enhanced web interface for radio galaxy zoo (Banfield+) allowing users to label galaxy data suggested by an active learning backend ([Acton](https://github.com/chengsoonong/acton)). This project currently builds upon the django framework.
 
-For a multithreaded version of this code, see the [multi-threaded branch](https://github.com/ADACS-Australia/SS18A-JBanfield/tree/multi-threaded)
+For a multithreaded version of this code, see the [multi-threaded branch](https://github.com/ADACS-Australia/SS18A-JBanfield/tree/multi-threaded).
 
 User documentation
 ==================

@@ -35,8 +35,7 @@ services:
       - "8000:8000"
     depends_on:
       - db
-    links:
-      - redis:redis
+      - redis
   celery:
     container_name: celery_zooniverse
     build: ./
@@ -49,5 +48,4 @@ services:
       - ./:/code
     depends_on:
       - db
-    links:
-      - redis:redis
+      - redis
